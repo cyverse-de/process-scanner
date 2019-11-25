@@ -4,7 +4,7 @@ node('docker') {
     try {
         stage "Build"
         buildContainer = "build-${env.BUILD_TAG}"
-        sh "docker run --rm --name=${buildContainer} -v $(pwd):/process-scanner -w /process-scanner golang go build ."
+        sh "docker run --rm --name=${buildContainer} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
         archiveArtifacts artifacts: 'process-scanner', fingerprint: true
     } finally {
