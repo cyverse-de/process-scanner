@@ -7,8 +7,6 @@ node('docker') {
         sh "docker run --rm --name=${buildContainer} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
         archiveArtifacts artifacts: 'process-scanner', fingerprint: true
-    } finally {
-        sh returnStatus: true, script: "docker rm ${buildContainer}"
     } catch (InterruptedException e) {
         currentBuild.result = "ABORTED"
         slackSend color: 'warning', message: "ABORTED: ${slackJobDescription}"
@@ -18,5 +16,7 @@ node('docker') {
         sh "echo ${e}"
         slackSend color: 'danger', message: "FAILED: ${slackJobDescription}"
         throw e
+    } finally {
+        sh returnStatus: true, script: "docker rm ${buildContainer}"
     }
 }
