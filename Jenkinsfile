@@ -3,6 +3,8 @@ node('docker') {
     slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
     try {
         stage "Build"
+        checkout scm
+
         buildContainer = "build-${env.BUILD_TAG}"
         sh "docker run --rm --name=${buildContainer} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
