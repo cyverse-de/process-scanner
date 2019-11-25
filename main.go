@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"regexp"
@@ -100,5 +101,8 @@ func main() {
 	}
 
 	// Scan for processes matching one of the patterns.
-	_ = scanForProcs(os.Args[1:])
+	err := scanForProcs(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
 }
