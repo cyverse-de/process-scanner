@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"regexp"
@@ -37,8 +36,9 @@ func buildRegexpPattern(patterns []string) string {
 	return strings.Join(quotedPatterns, "|")
 }
 
-func scanForProcs(patterns []string) error {
+func scanForProcs(patterns []string) (int, error) {
 	patternRegexp := regexp.MustCompile(buildRegexpPattern(patterns))
+	exitStatus := 1
 
 	// Compile the regular expression used to match process directories.
 	procRegexp := regexp.MustCompile("^\\d+$")
@@ -46,13 +46,13 @@ func scanForProcs(patterns []string) error {
 	// Open the root directory of the proc filesystem.
 	procfs, err := os.Open("/proc")
 	if err != nil {
-		return fmt.Errorf("unable to open /proc: %s", err.Error())
+		return exitStatus, fmt.Errorf("unable to open /proc: %s", err.Error())
 	}
 
 	// List files in the proc filesystem.
 	dirContents, err := procfs.Readdir(0)
 	if err != nil {
-		return fmt.Errorf("unable to list files in /proc: %s", err.Error())
+		return exitStatus, fmt.Errorf("unable to list files in /proc: %s", err.Error())
 	}
 
 	// Just print the directory contents for now.
@@ -70,22 +70,24 @@ func scanForProcs(patterns []string) error {
 			continue
 		}
 		if err != nil {
-			return fmt.Errorf("unable to open %s: %s", cmdlinePath, err.Error())
+			return exitStatus, fmt.Errorf("unable to open %s: %s", cmdlinePath, err.Error())
 		}
 
 		// Extract the arguments from the command-line file.
 		cmdline, err := ioutil.ReadAll(cmdlineFile)
 		if err != nil {
-			return fmt.Errorf("unable to read %s: %s", cmdlinePath, err.Error())
+			return exitStatus, fmt.Errorf("unable to read %s: %s", cmdlinePath, err.Error())
 		}
 		args := strings.Split(string(cmdline), "\000")
 
 		// Print the command line if the first command itself matches one of the patterns.
 		if patternRegexp.Match([]byte(args[0])) {
 			fmt.Println(strings.Join(args, " "))
+			exitStatus = 0
 		}
 	}
-	return nil
+
+	return exitStatus, nil
 }
 
 func main() {
@@ -101,8 +103,11 @@ func main() {
 	}
 
 	// Scan for processes matching one of the patterns.
-	err := scanForProcs(os.Args[1:])
+	exitStatus, err := scanForProcs(os.Args[1:])
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		os.Exit(2)
 	}
+
+	os.Exit(exitStatus)
 }
