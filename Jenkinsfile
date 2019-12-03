@@ -1,19 +1,5 @@
 #!groovy
 
-def publish_release(token) {
-    owner = 'cyverse-de'
-    repo = 'process-scanner'
-    releaseName = "build-" + env.BUILD_NUMBER.padLeft(5, 0)
-
-    // Create the release.
-    releaseId = releases.create(token, owner, repo, releaseName)
-
-    // Upload the executable file.
-    artifactName = 'process-scanner-linux-x86_64'
-    artifactContents = new File('process-scanner').bytes
-    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, artifactContents)
-}
-
 node('docker') {
     slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
     try {
@@ -24,10 +10,6 @@ node('docker') {
         sh "docker run --rm --name=${buildContainer} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
         archiveArtifacts artifacts: 'process-scanner', fingerprint: true
-
-        withCredentials([string(credentialsId: 'github-api-token', variable: 'GITHUB_TOKEN')]) {
-            publish_release(env.GITHUB_TOKEN)
-        }
     } catch (InterruptedException e) {
         currentBuild.result = "ABORTED"
         slackSend color: 'warning', message: "ABORTED: ${slackJobDescription}"
