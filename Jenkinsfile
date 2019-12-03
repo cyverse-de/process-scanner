@@ -1,36 +1,17 @@
 #!groovy
 
-@Grab(group='io.github.http-builder-ng', module='http-builder-ng-core', version='1.0.4')
-
-import groovyx.net.http.*
-
 def publish_release(token) {
-    github = HttpBuilder.configure {
-        request.uri = 'https://api.github.com'
-        request.accept = ['application/vnd.github.v3+json']
-        request.headers['Authorization'] = "token ${token}"
-    }
+    owner = 'cyverse-de'
+    repo = 'process-scanner'
+    releaseName = "build-" + env.BUILD_NUMBER.padLeft(5, 0)
 
-    // Create the new release.
-    releaseName: "build-" + env.BUILD_NUMBER.padLeft(5, 0)
-    releaseId = github.post {
-        request.uri.path = "/repos/cyverse-de/proces-scanner/releases"
-        request.contentType = ContentTypes.JSON[0]
-        request.body = [
-            tag_name: releaseName,
-            target_commitish: "master",
-            name: releaseName
-        ]
-    }['id']
+    // Create the release.
+    releaseId = releases.create(token, owner, repo, releaseName)
 
-    // Upload the executable.
-    f = new File("process-scanner")
-    github.post {
-        request.uri = "https://uploads.github.com/repos/cyverse-de/process-scanner/releases/${releaseId}/assets"
-        request.contentType = 'application/octet-stream'
-        request.uri.query = [name: "process-scanner-linux-x86_64"]
-        request.body = f.bytes
-    }
+    // Upload the executable file.
+    artifactName = 'process-scanner-linux-x86_64'
+    artifactContents = new File('process-scanner').bytes
+    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, artifactContents)
 }
 
 node('docker') {
