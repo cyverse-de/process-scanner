@@ -5,8 +5,9 @@ def publish_release(token) {
     repo = 'process-scanner'
     releaseName = "build-" + "${env.BUILD_NUMBER}".padLeft(5, "0")
 
+    githubRepo(token)
     // Create the release.
-    releaseId = releases.create(token, owner, repo, releaseName)
+    // releaseId = releases.create(token, owner, repo, releaseName)
 
     // Upload the executable file.
     // artifactName = 'process-scanner-linux-x86_64'
