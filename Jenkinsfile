@@ -7,6 +7,7 @@ def publish_release(token) {
 
     // Create the release.
     releaseId = releases.create(token, owner, repo, releaseName)
+    println "Release ID: ${releaseId}"
 
     // Upload the executable file.
     // artifactName = 'process-scanner-linux-x86_64'
