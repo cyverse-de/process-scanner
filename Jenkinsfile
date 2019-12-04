@@ -3,7 +3,7 @@
 def publish_release(token) {
     owner = 'cyverse-de'
     repo = 'process-scanner'
-    releaseName = "build-" + "${env.BUILD_NUMBER}".padLeft(5, 0)
+    releaseName = "build-" + "${env.BUILD_NUMBER}".padLeft(5, "0")
     echo releaseName
 
     // Create the release.
