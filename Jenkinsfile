@@ -1,34 +1,33 @@
 #!groovy
 
-@NonCPS
 def publish_release(token) {
-    owner = 'cyverse-de'
-    repo = 'process-scanner'
-    releaseName = "build-" + "${env.BUILD_NUMBER}".padLeft(5, "0")
+    def owner = 'cyverse-de'
+    def repo = 'process-scanner'
+    def releaseName = "build-" + "${env.BUILD_NUMBER}".padLeft(5, "0")
 
     // Create the release.
-    releaseId = releases.create(token, owner, repo, releaseName)
-    println "Release ID: ${releaseId}"
+    def releaseId = releases.create(token, owner, repo, releaseName)
 
     // Upload the executable file.
-    // artifactName = 'process-scanner-linux-x86_64'
-    // fileName = 'process-scanner'
-    // releases.uploadArtifact(token, owner, repo, releaseId, artifactName, fileName)
+    def artifactName = 'process-scanner-linux-x86_64'
+    def fileName = 'process-scanner'
+    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, fileName)
 }
 
 node('docker') {
     slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
     try {
-        stage "Build"
-        checkout scm
+        stage "Build" {
+            checkout scm
 
-        buildContainer = "build-${env.BUILD_TAG}"
-        sh "docker run --rm --name=${buildContainer} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
+            def container = "build-${env.BUILD_TAG}"
+            sh "docker run --rm --name=${container} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
-        archiveArtifacts artifacts: 'process-scanner', fingerprint: true
+            archiveArtifacts artifacts: 'process-scanner', fingerprint: true
 
-        withCredentials([string(credentialsId: 'github-api-token', variable: 'GITHUB_TOKEN')]) {
-            publish_release(env.GITHUB_TOKEN)
+            withCredentials([string(credentialsId: 'github-api-token', variable: 'GITHUB_TOKEN')]) {
+                publish_release(env.GITHUB_TOKEN)
+            }
         }
     } catch (InterruptedException e) {
         currentBuild.result = "ABORTED"
