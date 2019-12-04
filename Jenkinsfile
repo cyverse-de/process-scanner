@@ -10,8 +10,8 @@ def publish_release(token) {
 
     // Upload the executable file.
     artifactName = 'process-scanner-linux-x86_64'
-    artifactFile = new File('process-scanner')
-    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, artifactFile.bytes)
+    fileName = 'process-scanner'
+    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, fileName)
 }
 
 node('docker') {
