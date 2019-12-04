@@ -13,6 +13,7 @@ def publish_release(token) {
     def artifactName = 'process-scanner-linux-x86_64'
     def fileName = 'process-scanner'
     releases.uploadArtifact(token, owner, repo, releaseId, artifactName, fileName)
+    return
 }
 
 node('docker') {
