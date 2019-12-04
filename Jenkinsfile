@@ -5,7 +5,7 @@ def publish_release(token) {
     repo = 'process-scanner'
     releaseName = "build-" + "${env.BUILD_NUMBER}".padLeft(5, "0")
 
-    githubRepo(token)
+    releases.githubRepo(token)
     // Create the release.
     // releaseId = releases.create(token, owner, repo, releaseName)
 
