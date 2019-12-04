@@ -18,7 +18,7 @@ node('docker') {
     def slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
     def container
     try {
-        stage "Build" {
+        stage "build" {
             checkout scm
 
             container = "build-${env.BUILD_TAG}"
