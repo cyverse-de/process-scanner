@@ -20,17 +20,15 @@ node('docker') {
     def slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
     def container
     try {
-        stage "build" {
-            checkout scm
+        checkout scm
 
-            container = "build-${env.BUILD_TAG}"
-            sh "docker run --rm --name=${container} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
+        container = "build-${env.BUILD_TAG}"
+        sh "docker run --rm --name=${container} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
-            archiveArtifacts artifacts: 'process-scanner', fingerprint: true
+        archiveArtifacts artifacts: 'process-scanner', fingerprint: true
 
-            withCredentials([string(credentialsId: 'github-api-token', variable: 'GITHUB_TOKEN')]) {
-                publish_release(env.GITHUB_TOKEN)
-            }
+        withCredentials([string(credentialsId: 'github-api-token', variable: 'GITHUB_TOKEN')]) {
+            publish_release(env.GITHUB_TOKEN)
         }
     } catch (InterruptedException e) {
         currentBuild.result = "ABORTED"
