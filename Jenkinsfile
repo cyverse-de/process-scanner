@@ -20,7 +20,7 @@ node('docker') {
         stage "Build" {
             checkout scm
 
-            def container = "build-${env.BUILD_TAG}"
+            container = "build-${env.BUILD_TAG}"
             sh "docker run --rm --name=${container} -v \$(pwd):/process-scanner -w /process-scanner golang go build ."
 
             archiveArtifacts artifacts: 'process-scanner', fingerprint: true
@@ -39,6 +39,6 @@ node('docker') {
         slackSend color: 'danger', message: "FAILED: ${slackJobDescription}"
         throw e
     } finally {
-        sh returnStatus: true, script: "docker rm ${buildContainer}"
+        sh returnStatus: true, script: "docker rm ${container}"
     }
 }
