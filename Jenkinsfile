@@ -2,7 +2,7 @@
 
 def publish_release(token) {
     releases.githubClient(token)
-/*     owner = 'cyverse-de'
+    owner = 'cyverse-de'
     repo = 'process-scanner'
     releaseName = "build-" + env.BUILD_NUMBER.padLeft(5, 0)
 
@@ -11,8 +11,8 @@ def publish_release(token) {
 
     // Upload the executable file.
     artifactName = 'process-scanner-linux-x86_64'
-    artifactContents = new File('process-scanner').bytes
-    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, artifactContents) */
+    artifactContents = (new File('process-scanner')).bytes
+    releases.uploadArtifact(token, owner, repo, releaseId, artifactName, artifactContents)
 }
 
 node('docker') {
