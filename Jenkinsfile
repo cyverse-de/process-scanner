@@ -15,7 +15,8 @@ def publish_release(token) {
 }
 
 node('docker') {
-    slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+    def slackJobDescription = "job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+    def container
     try {
         stage "Build" {
             checkout scm
