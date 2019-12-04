@@ -1,5 +1,6 @@
 #!groovy
 
+@NonCPS
 def publish_release(token) {
     def owner = 'cyverse-de'
     def repo = 'process-scanner'
