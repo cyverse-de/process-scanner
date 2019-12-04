@@ -3,7 +3,8 @@
 def publish_release(token) {
     owner = 'cyverse-de'
     repo = 'process-scanner'
-    releaseName = "build-" + env.BUILD_NUMBER.padLeft(5, 0)
+    buildNumber = env.BUILD_NUMBER
+    releaseName = "build-" + buildNumber.padLeft(5, 0)
 
     // Create the release.
     // releaseId = releases.create(token, owner, repo, releaseName)
